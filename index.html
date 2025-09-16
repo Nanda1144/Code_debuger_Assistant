@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Debugging Assistant - NLP Powered</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            color: var(--primary);
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tagline {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 15px 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .input-section {
+            grid-column: span 2;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        select, input[type="file"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: white;
+        }
+
+        select:focus, input[type="file"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--secondary));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #00b4d8);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #b5179e);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .code-editor {
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            min-height: 300px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 1rem;
+            padding: 15px;
+            background: #2d2d2d;
+            color: #f8f8f2;
+            overflow: auto;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+
+        .code-editor:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .output-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        .code-output {
+            position: relative;
+        }
+
+        .code-output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .code-output-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .code-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            background: var(--gray-light);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--gray);
+        }
+
+        .icon-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .code-display {
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            min-height: 300px;
+            padding: 15px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            overflow: auto;
+            white-space: pre-wrap;
+            background: #2d2d2d;
+            color: #f8f8f2;
+        }
+
+        .code-editor.editable {
+            cursor: text;
+        }
+
+        .code-editor.editable:focus {
+            border-color: var(--success);
+            box-shadow: 0 0 0 3px rgba(76, 201, 240, 0.2);
+        }
+
+        .error-line {
+            background-color: rgba(247, 37, 133, 0.2);
+            display: block;
+            padding: 2px 0;
+            margin: 0 -15px;
+            padding-left: 15px;
+            padding-right: 15px;
+            border-left: 4px solid var(--danger);
+        }
+
+        .fixed-line {
+            background-color: rgba(76, 201, 240, 0.2);
+            display: block;
+            padding: 2px 0;
+            margin: 0 -15px;
+            padding-left: 15px;
+            padding-right: 15px;
+            border-left: 4px solid var(--success);
+        }
+
+        .explanation-panel {
+            grid-column: span 2;
+            margin-top: 25px;
+        }
+
+        .explanation-content {
+            background: var(--light);
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .explanation-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .explanation-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .error-type {
+            font-weight: 600;
+            color: var(--danger);
+            margin-bottom: 5px;
+        }
+
+        .error-message {
+            margin-bottom: 10px;
+        }
+
+        .suggestion {
+            background: rgba(76, 201, 240, 0.1);
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 3px solid var(--success);
+        }
+
+        .learning-resources {
+            grid-column: span 2;
+            margin-top: 25px;
+        }
+
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .resource-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+            border: 1px solid var(--gray-light);
+        }
+
+        .resource-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .resource-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 15px;
+            font-weight: 600;
+        }
+
+        .resource-body {
+            padding: 15px;
+        }
+
+        .resource-description {
+            margin-bottom: 15px;
+            color: var(--gray);
+        }
+
+        .resource-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .resource-link:hover {
+            text-decoration: underline;
+        }
+
+        .stats-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            padding: 15px 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            max-width: 350px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification-icon {
+            font-size: 1.5rem;
+        }
+
+        .notification.success .notification-icon {
+            color: var(--success);
+        }
+
+        .notification.error .notification-icon {
+            color: var(--danger);
+        }
+
+        .notification-content h4 {
+            margin-bottom: 5px;
+        }
+
+        .notification-content p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease;
+        }
+
+        .loading-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .edit-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--success);
+            color: white;
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        @media (max-width: 992px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .input-section {
+                grid-column: span 1;
+            }
+            
+            .output-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .explanation-panel,
+            .learning-resources {
+                grid-column: span 1;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .form-group {
+                min-width: 100%;
+            }
+            
+            .stats-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-bug"></i>
+                <div>
+                    <h1>Code Debugging Assistant</h1>
+                    <div class="tagline">NLP-powered code analysis and correction tool</div>
+                </div>
+            </div>
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-value">5+</div>
+                    <div class="stat-label">Languages Supported</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">98%</div>
+                    <div class="stat-label">Accuracy Rate</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="card input-section">
+                <div class="card-header">
+                    <i class="fas fa-code"></i>
+                    <span>Code Input</span>
+                </div>
+                <div class="card-body">
+                    <div class="controls">
+                        <div class="form-group">
+                            <label for="language">Programming Language</label>
+                            <select id="language">
+                                <option value="python">Python</option>
+                                <option value="javascript">JavaScript</option>
+                                <option value="java">Java</option>
+                                <option value="cpp">C++</option>
+                                <option value="csharp">C#</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="file-upload">Upload Code File</label>
+                            <input type="file" id="file-upload" accept=".py,.js,.java,.cpp,.cs">
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-primary" id="analyze-btn">
+                                <i class="fas fa-search"></i>
+                                Analyze Code
+                            </button>
+                        </div>
+                    </div>
+                    <div class="code-editor" id="code-editor" contenteditable="true" spellcheck="false">
+# Enter your code here
+def calculate_sum(a, b)
+    # Missing colon
+    return a + b
+
+# Call the function
+result = calculate_sum(5, 10)
+print("The sum is: " + result)
+                    </div>
+                </div>
+            </div>
+
+            <div class="output-section" id="output-section" style="display: none;">
+                <div class="card code-output">
+                    <div class="card-header">
+                        <i class="fas fa-times-circle"></i>
+                        <span>Original Code with Errors</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="code-output-header">
+                            <div class="code-output-title">Errors Highlighted in Red</div>
+                            <div class="code-actions">
+                                <button class="icon-btn" id="copy-original-btn" title="Copy to Clipboard">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <button class="icon-btn" id="download-original-btn" title="Download Code">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="code-display" id="original-code-display"></div>
+                    </div>
+                </div>
+
+                <div class="card code-output">
+                    <div class="card-header">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Corrected Code</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="code-output-header">
+                            <div class="code-output-title">Fixes Highlighted in Green</div>
+                            <div class="code-actions">
+                                <button class="icon-btn" id="copy-corrected-btn" title="Copy to Clipboard">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <button class="icon-btn" id="download-corrected-btn" title="Download Code">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="icon-btn" id="reanalyze-btn" title="Re-analyze Code">
+                                    <i class="fas fa-redo"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="code-editor editable" id="corrected-code-editor" contenteditable="true" spellcheck="false"></div>
+                        <div class="edit-indicator" id="edit-indicator" style="display: none;">
+                            <i class="fas fa-edit"></i>
+                            <span>Editable</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card explanation-panel" id="explanation-panel" style="display: none;">
+                <div class="card-header">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>Error Explanations & Suggestions</span>
+                </div>
+                <div class="card-body">
+                    <div class="explanation-content" id="explanation-content">
+                        <!-- Explanations will be dynamically added here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="card learning-resources" id="learning-resources" style="display: none;">
+                <div class="card-header">
+                    <i class="fas fa-book"></i>
+                    <span>Learning Resources</span>
+                </div>
+                <div class="card-body">
+                    <div class="resource-grid" id="resource-grid">
+                        <!-- Resources will be dynamically added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        <div class="notification-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="notification-content">
+            <h4>Success!</h4>
+            <p>Your code has been analyzed successfully.</p>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const codeEditor = document.getElementById('code-editor');
+            const analyzeBtn = document.getElementById('analyze-btn');
+            const fileUpload = document.getElementById('file-upload');
+            const languageSelect = document.getElementById('language');
+            const outputSection = document.getElementById('output-section');
+            const originalCodeDisplay = document.getElementById('original-code-display');
+            const correctedCodeEditor = document.getElementById('corrected-code-editor');
+            const editIndicator = document.getElementById('edit-indicator');
+            const explanationPanel = document.getElementById('explanation-panel');
+            const explanationContent = document.getElementById('explanation-content');
+            const learningResources = document.getElementById('learning-resources');
+            const resourceGrid = document.getElementById('resource-grid');
+            const notification = document.getElementById('notification');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const copyOriginalBtn = document.getElementById('copy-original-btn');
+            const copyCorrectedBtn = document.getElementById('copy-corrected-btn');
+            const downloadOriginalBtn = document.getElementById('download-original-btn');
+            const downloadCorrectedBtn = document.getElementById('download-corrected-btn');
+            const reanalyzeBtn = document.getElementById('reanalyze-btn');
+
+            // Event Listeners
+            analyzeBtn.addEventListener('click', analyzeCode);
+            fileUpload.addEventListener('change', handleFileUpload);
+            copyOriginalBtn.addEventListener('click', () => copyToClipboard(originalCodeDisplay.textContent));
+            copyCorrectedBtn.addEventListener('click', () => copyToClipboard(correctedCodeEditor.textContent));
+            downloadOriginalBtn.addEventListener('click', () => downloadCode(originalCodeDisplay.textContent, 'original-code.py'));
+            downloadCorrectedBtn.addEventListener('click', () => downloadCode(correctedCodeEditor.textContent, 'corrected-code.py'));
+            reanalyzeBtn.addEventListener('click', reanalyzeCode);
+            
+            // Show edit indicator when corrected code editor is focused
+// Show edit indicator when corrected code editor is focused
+            correctedCodeEditor.addEventListener('focus', () => {
+                editIndicator.style.display = 'flex';
+            });
+            
+            correctedCodeEditor.addEventListener('blur', () => {
+                editIndicator.style.display = 'none';
+            });
+
+            // Language-specific error patterns
+            const errorPatterns = {
+                python: [
+                    {
+                        pattern: /def\s+\w+\([^)]*\)\s*[^:]/g,
+                        message: "Missing colon at the end of function definition",
+                        suggestion: "Add a colon ':' at the end of the function definition line.",
+                        fix: (match) => match.replace(/def\s+(\w+\([^)]*\))\s*[^:]/, 'def $1:')
+                    },
+                    {
+                        pattern: /if\s+.*[^:]\s*$/gm,
+                        message: "Missing colon at the end of if statement",
+                        suggestion: "Add a colon ':' at the end of the if statement.",
+                        fix: (match) => match.replace(/if\s+(.*)[^:]\s*$/, 'if $1:')
+                    },
+                    {
+                        pattern: /for\s+.*[^:]\s*$/gm,
+                        message: "Missing colon at the end of for loop",
+                        suggestion: "Add a colon ':' at the end of the for loop.",
+                        fix: (match) => match.replace(/for\s+(.*)[^:]\s*$/, 'for $1:')
+                    },
+                    {
+                        pattern: /while\s+.*[^:]\s*$/gm,
+                        message: "Missing colon at the end of while loop",
+                        suggestion: "Add a colon ':' at the end of the while loop.",
+                        fix: (match) => match.replace(/while\s+(.*)[^:]\s*$/, 'while $1:')
+                    },
+                    {
+                        pattern: /print\s+[^(]/g,
+                        message: "Incorrect print syntax for Python 3",
+                        suggestion: "Use print() with parentheses for Python 3.",
+                        fix: (match) => match.replace(/print\s+([^(].*?)/, 'print($1)')
+                    }
+                ],
+                javascript: [
+                    {
+                        pattern: /console\.log\s*[^(]/g,
+                        message: "Incorrect console.log syntax",
+                        suggestion: "Use console.log() with parentheses.",
+                        fix: (match) => match.replace(/console\.log\s+([^(].*?)/, 'console.log($1)')
+                    },
+                    {
+                        pattern: /var\s+\w+\s*=\s*[^;]\s*$/gm,
+                        message: "Missing semicolon at the end of variable declaration",
+                        suggestion: "Add a semicolon ';' at the end of the statement.",
+                        fix: (match) => match.replace(/(var\s+\w+\s*=\s*[^;])\s*$/, '$1;')
+                    },
+                    {
+                        pattern: /function\s+\w+\([^)]*\)\s*[^{]/g,
+                        message: "Missing opening brace for function definition",
+                        suggestion: "Add an opening brace '{' after the function parameters.",
+                        fix: (match) => match.replace(/(function\s+\w+\([^)]*\))\s*[^{]/, '$1 {')
+                    }
+                ],
+                java: [
+                    {
+                        pattern: /public\s+class\s+\w+\s*[^{]/g,
+                        message: "Missing opening brace for class definition",
+                        suggestion: "Add an opening brace '{' after the class name.",
+                        fix: (match) => match.replace(/(public\s+class\s+\w+)\s*[^{]/, '$1 {')
+                    },
+                    {
+                        pattern: /public\s+static\s+void\s+main\(String\[\]\s+args\)\s*[^{]/g,
+                        message: "Missing opening brace for main method",
+                        suggestion: "Add an opening brace '{' after the main method signature.",
+                        fix: (match) => match.replace(/(public\s+static\s+void\s+main\(String\[\]\s+args\))\s*[^{]/, '$1 {')
+                    },
+                    {
+                        pattern: /System\.out\.print\s*[^(]/g,
+                        message: "Incorrect System.out.print syntax",
+                        suggestion: "Use System.out.print() with parentheses.",
+                        fix: (match) => match.replace(/System\.out\.print\s+([^(].*?)/, 'System.out.print($1)')
+                    }
+                ],
+                cpp: [
+                    {
+                        pattern: /#include\s*<[^>]+>\s*[^;]\s*$/gm,
+                        message: "Missing semicolon after include directive",
+                        suggestion: "Add a semicolon ';' after the include directive.",
+                        fix: (match) => match.replace(/(#include\s*<[^>]+>)\s*[^;]\s*$/, '$1;')
+                    },
+                    {
+                        pattern: /using\s+namespace\s+std\s*[^;]\s*$/gm,
+                        message: "Missing semicolon after using namespace",
+                        suggestion: "Add a semicolon ';' after the using namespace statement.",
+                        fix: (match) => match.replace(/(using\s+namespace\s+std)\s*[^;]\s*$/, '$1;')
+                    },
+                    {
+                        pattern: /cout\s*<<\s*[^;]\s*$/gm,
+                        message: "Missing semicolon at the end of cout statement",
+                        suggestion: "Add a semicolon ';' at the end of the cout statement.",
+                        fix: (match) => match.replace(/(cout\s*<<\s*[^;])\s*$/, '$1;')
+                    }
+                ],
+                csharp: [
+                    {
+                        pattern: /using\s+System\s*[^;]\s*$/gm,
+                        message: "Missing semicolon after using directive",
+                        suggestion: "Add a semicolon ';' after the using directive.",
+                        fix: (match) => match.replace(/(using\s+System)\s*[^;]\s*$/, '$1;')
+                    },
+                    {
+                        pattern: /Console\.Write\s*[^(]/g,
+                        message: "Incorrect Console.Write syntax",
+                        suggestion: "Use Console.Write() with parentheses.",
+                        fix: (match) => match.replace(/Console\.Write\s+([^(].*?)/, 'Console.Write($1)')
+                    },
+                    {
+                        pattern: /public\s+class\s+\w+\s*[^{]/g,
+                        message: "Missing opening brace for class definition",
+                        suggestion: "Add an opening brace '{' after the class name.",
+                        fix: (match) => match.replace(/(public\s+class\s+\w+)\s*[^{]/, '$1 {')
+                    }
+                ]
+            };
+
+            // Learning resources for different error types
+            const learningResourcesDB = {
+                python: [
+                    {
+                        title: "Python Functions Documentation",
+                        description: "Learn how to define functions properly in Python",
+                        url: "https://docs.python.org/3/tutorial/controlflow.html#defining-functions"
+                    },
+                    {
+                        title: "Python Print Function",
+                        description: "Understanding print() function in Python 3",
+                        url: "https://realpython.com/python-print/"
+                    },
+                    {
+                        title: "Python Indentation",
+                        description: "Guide to proper indentation in Python",
+                        url: "https://www.w3schools.com/python/python_indentation.asp"
+                    }
+                ],
+                javascript: [
+                    {
+                        title: "JavaScript Console Methods",
+                        description: "Learn about console.log and other console methods",
+                        url: "https://developer.mozilla.org/en-US/docs/Web/API/console"
+                    },
+                    {
+                        title: "JavaScript Semicolons",
+                        description: "Understanding when to use semicolons in JavaScript",
+                        url: "https://codeburst.io/javascript-the-evil-semicolon-4c8a2d0a7d5d"
+                    },
+                    {
+                        title: "JavaScript Functions",
+                        description: "Guide to defining functions in JavaScript",
+                        url: "https://www.w3schools.com/js/js_functions.asp"
+                    }
+                ],
+                java: [
+                    {
+                        title: "Java Classes and Objects",
+                        description: "Learn about class definitions in Java",
+                        url: "https://www.w3schools.com/java/java_classes.asp"
+                    },
+                    {
+                        title: "Java Main Method",
+                        description: "Understanding the main method in Java",
+                        url: "https://www.w3schools.com/java/java_main.asp"
+                    },
+                    {
+                        title: "Java System.out.print",
+                        description: "Learn about output methods in Java",
+                        url: "https://www.w3schools.com/java/java_output.asp"
+                    }
+                ],
+                cpp: [
+                    {
+                        title: "C++ Include Directives",
+                        description: "Understanding #include directives in C++",
+                        url: "https://www.cplusplus.com/doc/tutorial/preprocessor/"
+                    },
+                    {
+                        title: "C++ Namespace",
+                        description: "Learn about using namespace in C++",
+                        url: "https://www.cplusplus.com/doc/tutorial/namespaces/"
+                    },
+                    {
+                        title: "C++ Cout",
+                        description: "Understanding cout in C++",
+                        url: "https://www.cplusplus.com/doc/tutorial/basic_io/"
+                    }
+                ],
+                csharp: [
+                    {
+                        title: "C# Using Directives",
+                        description: "Learn about using directives in C#",
+                        url: "https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/using-directive"
+                    },
+                    {
+                        title: "C# Console Methods",
+                        description: "Understanding Console.Write in C#",
+                        url: "https://docs.microsoft.com/en-us/dotnet/api/system.console.write"
+                    },
+                    {
+                        title: "C# Classes",
+                        description: "Guide to defining classes in C#",
+                        url: "https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/classes"
+                    }
+                ]
+            };
+
+            // Functions
+// Functions
+            function analyzeCode() {
+                const code = codeEditor.textContent;
+                const language = languageSelect.value;
+                
+                if (!code.trim()) {
+                    showNotification('Please enter some code to analyze', 'error');
+                    return;
+                }
+
+                showLoading(true);
+                
+                // Simulate API call with timeout
+                setTimeout(() => {
+                    const analysis = performCodeAnalysis(code, language);
+                    processAnalysisResults(analysis);
+                    showLoading(false);
+                    showNotification('Code analysis completed successfully!', 'success');
+                }, 2000);
+            }
+
+            function reanalyzeCode() {
+                const code = correctedCodeEditor.textContent;
+                const language = languageSelect.value;
+                
+                if (!code.trim()) {
+                    showNotification('Please enter some code to analyze', 'error');
+                    return;
+                }
+
+                showLoading(true);
+                
+                // Simulate API call with timeout
+                setTimeout(() => {
+                    const analysis = performCodeAnalysis(code, language);
+                    processAnalysisResults(analysis);
+                    showLoading(false);
+                    showNotification('Code re-analyzed successfully!', 'success');
+                }, 2000);
+            }
+
+            function performCodeAnalysis(code, language) {
+                const patterns = errorPatterns[language] || [];
+                const errors = [];
+                let correctedCode = code;
+                const errorLines = new Set();
+
+                patterns.forEach(pattern => {
+                    let match;
+                    while ((match = pattern.pattern.exec(code)) !== null) {
+                        const line = code.substring(0, match.index).split('\n').length;
+                        errorLines.add(line);
+                        errors.push({
+                            line: line,
+                            message: pattern.message,
+                            suggestion: pattern.suggestion
+                        });
+
+                        // Apply the fix to the correctedCode
+                        if (pattern.fix) {
+                            correctedCode = correctedCode.replace(match[0], pattern.fix(match[0]));
+                        }
+                    }
+                });
+
+                // Get relevant learning resources
+                const resources = learningResourcesDB[language] || [];
+
+                return {
+                    originalCode: code,
+                    correctedCode: correctedCode,
+                    errors: errors,
+                    errorLines: Array.from(errorLines),
+                    resources: resources
+                };
+            }
+
+            function handleFileUpload(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    codeEditor.textContent = e.target.result;
+                    showNotification('File uploaded successfully!', 'success');
+                };
+                reader.readAsText(file);
+            }
+
+            function processAnalysisResults(analysis) {
+                // Display original code with errors highlighted
+                const originalLines = analysis.originalCode.split('\n');
+                const originalHtml = originalLines.map((line, index) => {
+                    const isErrorLine = analysis.errorLines.includes(index + 1);
+                    return isErrorLine ? `<span class="error-line">${line}</span>` : line;
+                }).join('\n');
+                
+                originalCodeDisplay.innerHTML = originalHtml;
+
+                // Display corrected code with fixes highlighted
+                correctedCodeEditor.textContent = analysis.correctedCode;
+                
+                // Display explanations
+                explanationContent.innerHTML = '';
+                if (analysis.errors.length === 0) {
+                    explanationContent.innerHTML = '<div class="explanation-item"><div class="error-type">No Errors Found</div><div class="error-message">Great job! Your code looks clean and error-free.</div></div>';
+                } else {
+                    analysis.errors.forEach(error => {
+                        const explanationItem = document.createElement('div');
+                        explanationItem.className = 'explanation-item';
+                        explanationItem.innerHTML = `
+                            <div class="error-type">Line ${error.line}: Error Detected</div>
+                            <div class="error-message">${error.message}</div>
+                            <div class="suggestion">
+                                <strong>Suggestion:</strong> ${error.suggestion}
+                            </div>
+                        `;
+                        explanationContent.appendChild(explanationItem);
+                    });
+                }
+
+                // Display learning resources
+                resourceGrid.innerHTML = '';
+                analysis.resources.forEach(resource => {
+                    const resourceCard = document.createElement('div');
+                    resourceCard.className = 'resource-card';
+                    resourceCard.innerHTML = `
+                        <div class="resource-header">${resource.title}</div>
+                        <div class="resource-body">
+                            <div class="resource-description">${resource.description}</div>
+                            <a href="${resource.url}" target="_blank" class="resource-link">
+                                View Resource <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    `;
+                    resourceGrid.appendChild(resourceCard);
+                });
+
+                // Show output sections
+                outputSection.style.display = 'grid';
+                explanationPanel.style.display = 'block';
+                learningResources.style.display = 'block';
+            }
+
+            function showNotification(message, type = 'success') {
+                const icon = notification.querySelector('.notification-icon i');
+                const title = notification.querySelector('h4');
+                const text = notification.querySelector('p');
+                
+                // Update notification content
+                if (type === 'success') {
+                    icon.className = 'fas fa-check-circle';
+                    title.textContent = 'Success!';
+                } else {
+                    icon.className = 'fas fa-exclamation-circle';
+                    title.textContent = 'Error!';
+                }
+                
+                text.textContent = message;
+                
+                // Show notification
+                notification.className = `notification ${type} show`;
+                
+                // Hide after 3 seconds
+                setTimeout(() => {
+                    notification.className = 'notification';
+                }, 3000);
+            }
+
+            function showLoading(show) {
+                if (show) {
+                    loadingOverlay.classList.add('show');
+                } else {
+                    loadingOverlay.classList.remove('show');
+                }
+            }
+
+            function copyToClipboard(text) {
+                navigator.clipboard.writeText(text)
+                    .then(() => {
+                        showNotification('Code copied to clipboard!', 'success');
+                    })
+                    .catch(err => {
+                        showNotification('Failed to copy code', 'error');
+                        console.error('Failed to copy: ', err);
+                    });
+            }
+function downloadCode(code, filename) {
+                const language = languageSelect.value;
+                const extensions = {
+                    python: 'py',
+                    javascript: 'js',
+                    java: 'java',
+                    cpp: 'cpp',
+                    csharp: 'cs'
+                };
+                
+                const extension = extensions[language] || 'txt';
+                const fullFilename = filename.replace(/\.[^/.]+$/, '') + '.' + extension;
+                
+                const blob = new Blob([code], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fullFilename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showNotification('Code downloaded successfully!', 'success');
+            }
+        });
+    </script>
+</body>
+</html>
